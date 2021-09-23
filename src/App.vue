@@ -4,6 +4,15 @@
   </div>
 </template>
 
+<script setup>
+import { Ws } from "./uitls/WebSocket";
+import { provide } from "@vue/runtime-core";
+
+const ws = new Ws("ws://localhost:5899");
+ws.init();
+provide("ws", ws);
+</script>
+
 <style>
 * {
   padding: 0;

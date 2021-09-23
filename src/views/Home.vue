@@ -21,6 +21,7 @@
           >
           <Message self>早的呢</Message>
           <Message self>😔</Message>
+          <Tip>xx加入了吴聊</Tip>
         </div>
         <div class="chat-input">
           <div class="input-btns">
@@ -42,6 +43,7 @@
 
 <script setup>
 import Message from "../components/Message.vue";
+import Tip from "../components/Tip.vue";
 </script>
 
 <style scoped>
