@@ -10,8 +10,8 @@
       </div>
       <div class="chat">
         <div class="chat-title">吴聊 (8)</div>
-        <div class="chat-main">
-          <Message username="博总">我能参与不</Message>
+        <div class="chat-main" ref="messageListEle">
+          <Message username="博总">{{ loggingUser }}</Message>
           <Message self>可以,如果你想的话</Message>
           <Message self>静态页面搞好了</Message>
           <Message username="博总">6</Message>
@@ -22,6 +22,13 @@
           <Message self>早的呢</Message>
           <Message self>😔</Message>
           <Tip>xx加入了吴聊</Tip>
+          <component
+            v-for="item in messageList"
+            :is="item.type"
+            v-bind="item.props"
+          >
+            {{ item.slots }}
+          </component>
         </div>
         <div class="chat-input">
           <div class="input-btns">
@@ -42,8 +49,46 @@
 </template>
 
 <script setup>
+import { markRaw, reactive, ref } from "@vue/reactivity";
+import { onMounted, inject, watch } from "@vue/runtime-core";
 import Message from "../components/Message.vue";
 import Tip from "../components/Tip.vue";
+import { Ws } from "../uitls/WebSocket";
+import useScrollToButtom from "../hooks/useScrollToButtom";
+
+/**
+ * @typedef {{type: any, props: any, slots: any}} messageItem
+ * @type {messageItem[]}
+ */
+const messageList = reactive([]);
+
+/**
+ * @type {Ws}
+ */
+const ws = inject("ws");
+let loggingUser = ws.getloggingUser();
+ws.$instance.addEventListener("message", (message) => {
+  messageList.push({
+    type: markRaw(Message),
+    props: { username: "naizhu" },
+    slots: "我真的服了",
+  });
+});
+
+/**
+ * 组件挂载和更新时,将消息窗口滚动到最下面
+ */
+const messageListEle = ref(null);
+onMounted(() => {
+  useScrollToButtom(messageListEle.value);
+});
+watch(
+  () => [...messageList],
+  () => {
+    console.log("effec");
+    useScrollToButtom(messageListEle.value);
+  }
+);
 </script>
 
 <style scoped>

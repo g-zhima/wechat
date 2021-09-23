@@ -1,8 +1,12 @@
 import webSocketType from "../constant/webSocketType";
+import { reactive, ref } from "@vue/reactivity";
 
 export class Ws {
+  loggingUser = ref("");
+
   constructor(url) {
     this.ws = new WebSocket(url);
+    this.$instance = this.ws;
   }
 
   init() {
@@ -18,6 +22,7 @@ export class Ws {
       switch (type) {
         case webSocketType.LOGIN:
           console.log("user login");
+          this._userLogin(data);
           break;
       }
     };
@@ -34,5 +39,12 @@ export class Ws {
     if (this.ws.readyState === this.ws.OPEN) {
       this.ws.send(data);
     }
+  }
+
+  _userLogin(username) {
+    this.loggingUser.value = username;
+  }
+  getloggingUser() {
+    return this.loggingUser;
   }
 }

@@ -4,9 +4,18 @@ const path = require("path");
 const webSocketsType = require("../constant/webSocketType");
 
 const app = express();
+const webSockets = new ws.Server({ port: 5899 });
 // app.use(express.static(path.resolve(__dirname, "../../dist")));
 
-const webSockets = new ws.Server({ port: 5899 });
+/**
+ * @type {Array<string>}} 用户列表
+ */
+let userList = [];
+
+/**
+ * @type {Array<string>} 消息列表
+ */
+let messageList = [];
 
 // send 方法序列化 js 对象
 const send = (ws, data) => {
@@ -28,8 +37,38 @@ const broadcast = (data) => {
 /**
  * 用户登录
  */
-const userLogin = (username) => {
+const broadcastUserLogin = (username) => {
   broadcast({ type: 1, data: username });
+};
+
+/**
+ * 广播用户列表
+ */
+const broadcastUserList = () => {
+  broadcast({
+    type: webSocketsType.USER_LIST,
+    data: userList,
+  });
+};
+
+/**
+ * 广播消息列表
+ */
+const broadcastMessageList = () => {
+  broadcast({
+    type: webSocketsType.MESSAGE_LIST,
+    data: messageList,
+  });
+};
+
+/**
+ * 广播最新消息
+ */
+const broadcastMessage = (data, type) => {
+  broadcast({
+    type: 14,
+    data,
+  });
 };
 
 webSockets.on("connection", (ws) => {
@@ -38,7 +77,7 @@ webSockets.on("connection", (ws) => {
     switch (type) {
       case webSocketsType.LOGIN:
         console.log("login", data);
-        userLogin(data);
+        broadcastUserLogin(data);
         break;
       case webSocketsType.LOGOUT:
         console.log("logout");
