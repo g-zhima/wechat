@@ -36,11 +36,11 @@
             <i class="iconfont icon-tupian"></i>
           </div>
           <div class="input-area">
-            <textarea placeholder="请输入聊天内容"></textarea>
+            <textarea v-model="input" placeholder="请输入聊天内容"></textarea>
           </div>
           <div class="input-send">
             <span class="send-tip">按 CTRL + ENTER 发送</span>
-            <button class="send-button">发送</button>
+            <button class="send-button" @click="handleSend">发送</button>
           </div>
         </div>
       </div>
@@ -55,6 +55,7 @@ import Message from "../components/Message.vue";
 import Tip from "../components/Tip.vue";
 import { Ws } from "../uitls/WebSocket";
 import useScrollToButtom from "../hooks/useScrollToButtom";
+import webSocketType from "../constant/webSocketType";
 
 /**
  * @typedef {{type: any, props: any, slots: any}} messageItem
@@ -68,12 +69,30 @@ const messageList = reactive([]);
 const ws = inject("ws");
 let loggingUser = ws.getloggingUser();
 ws.$instance.addEventListener("message", (message) => {
-  messageList.push({
-    type: markRaw(Message),
-    props: { username: "naizhu" },
-    slots: "我真的服了",
-  });
+  const { data, type } = JSON.parse(message.data);
+  if (type === webSocketType.SEND_MESSAGE) {
+    messageList.push({
+      type: markRaw(Message),
+      props: { username: "naizhu" },
+      slots: data,
+    });
+  }
 });
+
+/**
+ *
+ */
+const input = ref("");
+const handleSend = () => {
+  if (input.value.trim()) {
+    ws.send(
+      JSON.stringify({
+        type: webSocketType.SEND_MESSAGE,
+        data: input.value,
+      })
+    );
+  } else alert("请输入内容");
+};
 
 /**
  * 组件挂载和更新时,将消息窗口滚动到最下面

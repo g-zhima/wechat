@@ -66,7 +66,7 @@ const broadcastMessageList = () => {
  */
 const broadcastMessage = (data, type) => {
   broadcast({
-    type: 14,
+    type: 11,
     data,
   });
 };
@@ -81,6 +81,10 @@ webSockets.on("connection", (ws) => {
         break;
       case webSocketsType.LOGOUT:
         console.log("logout");
+        break;
+      case webSocketsType.SEND_MESSAGE:
+        console.log("send");
+        broadcastMessage(data);
         break;
     }
   });
